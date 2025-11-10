@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
+import styles from "./CreatePostModal.module.css";
 
 type Props = {
   register: UseFormRegister<any>;
@@ -51,51 +52,35 @@ const GalleryImageUpload: React.FC<Props> = ({  watch, setValue }) => {
   };
 
   return (
-    <div>
-      <label className="block font-semibold mb-1">Gallery Images:</label>
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleFiles}
-        className="cursor-pointer"
-      />
+    <div style={{border: "1px solid #d9d8d8", borderRadius: "10px", padding: "12px"}} className={styles.formGroup}>
+      <label className={styles.formLabel}>Gallery Images</label>
+      <span  className={styles.formDescription}>JPG/PNG, multiple allowed</span>
+      <label className={styles.uploadArea}>
+        <div className={styles.uploadText}>
+          <img src="/gallery.svg" alt=""/> Upload Gallery Images
+        </div>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFiles}
+          className={styles.fileInput}
+        />
+      </label>
 
       {previews.length > 0 && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
-            gap: "10px",
-            marginTop: "10px",
-          }}
-        >
+        <div className={styles.galleryPreviewGrid}>
           {previews.map((src, i) => (
-            <div key={i} style={{ position: "relative" }}>
+            <div key={i} className={styles.galleryPreviewItem}>
               <img
                 src={src}
                 alt={`Gallery Preview ${i + 1}`}
-                style={{
-                  width: "100%",
-                  height: "100px",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                }}
+                className={styles.galleryPreviewImage}
               />
               <button
                 type="button"
                 onClick={() => removeImage(i)}
-                style={{
-                  position: "absolute",
-                  top: "4px",
-                  right: "4px",
-                  background: "rgba(0,0,0,0.6)",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  padding: "2px 6px",
-                  cursor: "pointer",
-                }}
+                className={styles.galleryRemoveBtn}
               >
                 ✕
               </button>

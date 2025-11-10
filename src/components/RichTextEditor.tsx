@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import type { ControllerRenderProps } from "react-hook-form";
 import { Editor, EditorState, RichUtils, convertToRaw } from "draft-js";
 import styles from "./CreatePostModal.module.css";
@@ -10,6 +10,7 @@ type Props = {
 
 export default function RichTextEditor({ field, error }: Props) {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const editorRef = useRef<Editor>(null);
 
   const handleEditorChange = (state: EditorState) => {
     setEditorState(state);
@@ -28,6 +29,12 @@ export default function RichTextEditor({ field, error }: Props) {
   const toggleInlineStyle = (style: string) => handleEditorChange(RichUtils.toggleInlineStyle(editorState, style));
   const toggleBlockType = (blockType: string) => handleEditorChange(RichUtils.toggleBlockType(editorState, blockType));
 
+  const focusEditor = () => {
+    if (editorRef.current) {
+      editorRef.current.focus();
+    }
+  };
+
   return (
     <div className={`${styles.formGroup} ${styles.richTextEditor}`}>
       <label className={styles.formLabel}>HTML Content</label>
@@ -42,12 +49,12 @@ export default function RichTextEditor({ field, error }: Props) {
           <button type="button" className={styles.editorBtn} onClick={() => toggleBlockType("header-one")}>H1</button>
           <button type="button" className={styles.editorBtn} onClick={() => toggleBlockType("unordered-list-item")}>•</button>
         </div>
-        <div className={styles.editorContent}>
+        <div className={styles.editorContent} onClick={focusEditor}>
           <Editor
+            ref={editorRef}
             editorState={editorState}
             onChange={handleEditorChange}
             handleKeyCommand={handleKeyCommand}
-            placeholder="Write something..."
           />
         </div>
       </div>

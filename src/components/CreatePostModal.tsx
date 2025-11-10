@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import styles from "./CreatePostModal.module.css";
+import { titleToSlug } from "../utils/slug";
 
 import ModalHeader from "./ModalHeader";
 import TitleInput from "./TitleInput";
@@ -14,7 +15,9 @@ type FormData = {
   title: string;
   slug: string;
   category: "news" | "announcement";
+  language: "az" | "en";
   coverImage: FileList;
+  coverImageLabel?: string;
   galleryImages: FileList;
   htmlContent: string;
 };
@@ -29,39 +32,36 @@ export default function CreatePostModal({ isOpen = true, onClose = () => {} }) {
     setValue,
     watch,
   } = useForm<FormData>({
-    defaultValues: { category: "news", htmlContent: "" },
+    defaultValues: { category: "news", language: "az", htmlContent: "" },
   });
 
-  const coverImage = watch("coverImage");
-
-  const [preview, setPreview] = useState<File | null>(null);
-
   const [step, setStep] = useState<number>(1);
+  const title = watch("title");
+  
+  // Update slug in real-time based on title
+  useEffect(() => {
+    if (title) {
+      const slug = titleToSlug(title);
+      setValue("slug", slug);
+    } else {
+      setValue("slug", "");
+    }
+  }, [title, setValue]);
+
   console.log(getValues());
   const onSubmit = (data: FormData) => console.log("Form Data:", data);
-
-  useEffect(() => {
-    if (coverImage && coverImage.length > 0) {
-      const file = coverImage[0];
-      const objectUrl = URL.createObjectURL(file);
-      setPreview(file);
-
-      
-      
-
-      // Clean up memory when component unmounts or file changes
-      return () => URL.revokeObjectURL(objectUrl);
-    } else {
-      setPreview(null);
-    }
-  }, [coverImage]);
 
   if (!isOpen) return null;
 
   return (
     <div className={styles.createPostModalOverlay}>
       <div className={styles.createPostModal}>
-        <ModalHeader onClose={onClose} />
+        <Controller
+          name="language"
+          control={control}
+          defaultValue="az"
+          render={({ field }) => <ModalHeader onClose={onClose} field={field} />}
+        />
         <div className={styles.modalTitleSection}>
           <div className={styles.modalTitleRow}>
             <h2 className={styles.modalTitle}>Create News / Announcement</h2>
@@ -83,13 +83,13 @@ export default function CreatePostModal({ isOpen = true, onClose = () => {} }) {
           {
             step == 1 ? <>
             <TitleInput register={register} errors={errors} />
-          <SlugInput register={register} />
+          <SlugInput register={register} watch={watch} />
           <Controller
             name="category"
             control={control}
             render={({ field }) => <CategorySelector field={field} />}
           />
-          <CoverImageUpload register={register} errors={errors} />
+          <CoverImageUpload register={register} errors={errors} watch={watch} setValue={setValue} />
           <Controller
             name="htmlContent"
             control={control}
@@ -101,7 +101,6 @@ export default function CreatePostModal({ isOpen = true, onClose = () => {} }) {
               />
             )}
           />
-          <img src={preview ? URL.createObjectURL(preview) : ""} alt="" />
             </> :           <GalleryImageUpload setValue={setValue} register={register} watch={watch} />
  
           }

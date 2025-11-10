@@ -1,12 +1,32 @@
+import type { ControllerRenderProps } from "react-hook-form";
 import styles from "./CreatePostModal.module.css";
 
-export default function ModalHeader({ onClose }: { onClose: () => void }) {
+type Props = {
+  onClose: () => void;
+  field: ControllerRenderProps<any, "language">;
+};
+
+export default function ModalHeader({ onClose, field }: Props) {
+  const currentLanguage = field.value || "az";
+  
   return (
     <div className={styles.modalHeader}>
       <div className={styles.modalHeaderLeft}>
         <div className={styles.languageSelector}>
-          <button className={`${styles.langBtn} ${styles.langBtnActive}`}><img src="/azerbaijan.png" /> AZ</button>
-          <button className={styles.langBtn}><img src="/united-kingdom.png" /> EN</button>
+          <button
+            type="button"
+            className={`${styles.langBtn} ${currentLanguage === "az" ? styles.langBtnActive : ""}`}
+            onClick={() => field.onChange("az")}
+          >
+            <img src="/azerbaijan.png" alt="Azerbaijan" /> AZ
+          </button>
+          <button
+            type="button"
+            className={`${styles.langBtn} ${currentLanguage === "en" ? styles.langBtnActive : ""}`}
+            onClick={() => field.onChange("en")}
+          >
+            <img src="/united-kingdom.png" alt="United Kingdom" /> EN
+          </button>
         </div>
       </div>
       <button className={styles.closeBtn} onClick={onClose}>

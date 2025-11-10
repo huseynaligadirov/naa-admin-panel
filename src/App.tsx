@@ -34,9 +34,15 @@ interface SidebarState {
 }
 
 const App: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string>("All Posts");
+  // const [selectedCategory, setSelectedCategory] = useState<string>("All Posts");
+  // const [selectedStatus, setSelectedStatus] = useState<string>("All Status");
+  const [selectedCategory] = useState<string>("All Posts");
+  const [selectedStatus] = useState<string>("All Status");
+
+  
+
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
-  const [selectedStatus, setSelectedStatus] = useState<string>("All Status");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [showSidebar, setShowSidebar] = useState<SidebarState>({
     website: true,
