@@ -1,4 +1,4 @@
-import type { UseFormRegister, FieldErrors, FieldError } from "react-hook-form";
+import type { UseFormRegister, FieldErrors } from "react-hook-form";
 import styles from "./CreatePostModal.module.css";
 
 type Props = {

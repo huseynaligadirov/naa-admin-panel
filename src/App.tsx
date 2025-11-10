@@ -57,73 +57,9 @@ const App: React.FC = () => {
       status: "Active",
       publishStatus: "Publish",
       author: "snovruzlu",
-      image: "🏛️",
+      image: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fmodern.az%2Faz%2Faktual%2F113185%2Fldquoaviasiya-haqqindardquo-qanun-deyisdi-1-ve-3-avro-oumldenilmeyecek%2F&psig=AOvVaw3BKXZfAPw6J1Q6lSm2fGCW&ust=1762851109915000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCIDGqKOa55ADFQAAAAAdAAAAABAE",
     },
-    {
-      id: 2,
-      title: "Milli Aviasiya Akade...",
-      description:
-        "Milli Aviasiya Akademiyasının təşkilatçılığı ilə həyata k...",
-      type: "Announcement",
-      date: "06/11/2026",
-      time: "10:19 AM",
-      status: "Active",
-      publishStatus: "Publish",
-      author: "snovruzlu",
-      image: "👥",
-    },
-    {
-      id: 3,
-      title: "Milli Aviasiya Akade...",
-      description:
-        "Milli Aviasiya Akademiyasının təşkilatçılığı ilə həyata k...",
-      type: "News",
-      date: "06/11/2026",
-      time: "10:19 AM",
-      status: "Active",
-      publishStatus: "Publish",
-      author: "snovruzlu",
-      image: "🪑",
-    },
-    {
-      id: 4,
-      title: "Milli Aviasiya Akade...",
-      description:
-        "Milli Aviasiya Akademiyasının təşkilatçılığı ilə həyata k...",
-      type: "Announcement",
-      date: "06/11/2026",
-      time: "10:19 AM",
-      status: "Active",
-      publishStatus: "Publish",
-      author: "snovruzlu",
-      image: "🌐",
-    },
-    {
-      id: 5,
-      title: "Milli Aviasiya Akade...",
-      description:
-        "Milli Aviasiya Akademiyasının təşkilatçılığı ilə həyata k...",
-      type: "News",
-      date: "06/11/2026",
-      time: "10:19 AM",
-      status: "Active",
-      publishStatus: "Publish",
-      author: "snovruzlu",
-      image: "🪑",
-    },
-    {
-      id: 6,
-      title: "Milli Aviasiya Akade...",
-      description:
-        "Milli Aviasiya Akademiyasının təşkilatçılığı ilə həyata k...",
-      type: "News",
-      date: "06/11/2026",
-      time: "10:19 AM",
-      status: "Active",
-      publishStatus: "Publish",
-      author: "snovruzlu",
-      image: "📱",
-    },
+  
   ];
 
   const toggleSidebar = (section: keyof SidebarState): void => {
@@ -268,7 +204,7 @@ const App: React.FC = () => {
                 <tr key={post.id}>
                   <td>
                     <div className="post-info">
-                      <div className="post-image">{post.image}</div>
+                      <div className="post-image"> <img src={post.image} alt="" /> </div>
                       <div>
                         <div className="post-title">{post.title}</div>
                         <div className="post-desc">{post.description}</div>

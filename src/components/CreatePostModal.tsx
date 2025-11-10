@@ -8,12 +8,14 @@ import SlugInput from "./SlugInput";
 import CategorySelector from "./CategorySelector";
 import CoverImageUpload from "./CoverImageUpload";
 import RichTextEditor from "./RichTextEditor";
+import GalleryImageUpload from "./GalleryImageUpload";
 
 type FormData = {
   title: string;
   slug: string;
   category: "news" | "announcement";
   coverImage: FileList;
+  galleryImages: FileList;
   htmlContent: string;
 };
 
@@ -24,6 +26,7 @@ export default function CreatePostModal({ isOpen = true, onClose = () => {} }) {
     control,
     formState: { errors },
     getValues,
+    setValue,
     watch,
   } = useForm<FormData>({
     defaultValues: { category: "news", htmlContent: "" },
@@ -77,7 +80,9 @@ export default function CreatePostModal({ isOpen = true, onClose = () => {} }) {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className={styles.modalForm}>
-          <TitleInput register={register} errors={errors} />
+          {
+            step == 1 ? <>
+            <TitleInput register={register} errors={errors} />
           <SlugInput register={register} />
           <Controller
             name="category"
@@ -97,6 +102,9 @@ export default function CreatePostModal({ isOpen = true, onClose = () => {} }) {
             )}
           />
           <img src={preview ? URL.createObjectURL(preview) : ""} alt="" />
+            </> :           <GalleryImageUpload setValue={setValue} register={register} watch={watch} />
+ 
+          }
           <button
             onClick={(e) => {
               e.preventDefault();
