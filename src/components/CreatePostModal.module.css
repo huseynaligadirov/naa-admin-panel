@@ -1,0 +1,332 @@
+.createPostModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.createPostModal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 728px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modalHeader {
+  padding: 20px 24px;
+  border-bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.LineProgressBar {
+  padding-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.progressLine {
+  height: 4px;
+  width: calc(50% - 2.5px);
+  border-radius: 6px;
+}
+
+.Blue {
+  background-color: #3b82f6;
+}
+
+.modalHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.languageSelector {
+  display: flex;
+  gap: 8px;
+}
+
+.langBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  background: white;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.langBtn img {
+  width: 16px;
+  height: 16px;
+}
+
+.langBtn:hover {
+  border-color: #3b82f6;
+}
+
+.langBtnActive {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.closeBtn:hover {
+  background: #f3f4f6;
+}
+
+.modalTitleSection {
+  padding: 16px 24px 12px;
+  border-bottom: 0;
+}
+
+.modalTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalTitle {
+  font-size: 28px;
+  font-weight: 500;
+  font-family: Lato, sans-serif;
+  color: #111827;
+  margin: 0;
+}
+
+.stepIndicator {
+  font-weight: 500;
+  font-size: 28px;
+  font-family: Lato, sans-serif;
+}
+
+.modalForm {
+  padding: 24px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.richTextEditor {
+  border: 1px solid #d9d8d8;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.formLabel {
+  display: block;
+  font-size: 14px;
+  font-weight: 400;
+  font: Inter, sans-serif;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.formInput {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #f7f7f7;
+  border-radius: 10px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.formInputReadonly {
+  background: #f9fafb;
+  color: #6b7280;
+}
+
+.errorMessage {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.categoryButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.categoryBtn {
+  padding: 10px 16px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 20px;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.2s;
+}
+
+.categoryBtn:hover {
+  border-color: #3b82f6;
+}
+
+.categoryBtnActive {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.categoryIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.uploadArea {
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+
+
+.uploadIcon {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 8px;
+  opacity: 0.5;
+}
+
+.uploadText {
+  color: #6b7280;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid #d9d8d8;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.fileInput {
+  display: none;
+}
+
+.editorContainer {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.editorToolbar {
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 8px;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.editorBtn {
+  padding: 6px 10px;
+  border: none;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  transition: all 0.2s;
+}
+
+.editorBtn:hover {
+  background: #e5e7eb;
+}
+
+.editorBtnActive {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.editorContent {
+  padding: 12px;
+  min-height: 200px;
+  background: white;
+}
+
+.editorContent .public-DraftEditor-content {
+  min-height: 200px;
+}
+
+.editorHint {
+  color: #9ca3af;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 12px;
+  background: #1e40af;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 8px;
+}
+
+.submitBtn:hover {
+  background: #1e3a8a;
+}
+
+.uploadIcon {
+  display: none;
+  width: 500px;
+  height: 500px;
+  margin: 0 auto 8px;
+  opacity: 0;
+}
