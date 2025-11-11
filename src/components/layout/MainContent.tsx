@@ -57,12 +57,6 @@ const getSubtitle = (title: string) => {
   return words[0] || "";
 };
 
-const STATUS_FILTER_OPTIONS: Array<{ value: "all" | "active" | "inactive"; label: string }> = [
-  { value: "all", label: "All Status" },
-  { value: "active", label: "Active" },
-  { value: "inactive", label: "Inactive" },
-];
-
 const STATUS_COLORS: Record<"active" | "inactive", string> = {
   active: "#16a34a",
   inactive: "#ef4444",
@@ -90,11 +84,15 @@ export default function MainContent({
 }: MainContentProps) {
   const [isPerPageOpen, setIsPerPageOpen] = useState(false);
   const [isCategoryFilterOpen, setIsCategoryFilterOpen] = useState(false);
+  const [isStatusFilterOpen, setIsStatusFilterOpen] = useState(false);
+  const [isPublishFilterOpen, setIsPublishFilterOpen] = useState(false);
   const [deletePostId, setDeletePostId] = useState<number | null>(null);
   const [deletePostTitle, setDeletePostTitle] = useState<string>("");
   const [showDeleteSuccess, setShowDeleteSuccess] = useState<boolean>(false);
   const perPageRef = useRef<HTMLDivElement>(null);
   const categoryFilterRef = useRef<HTMLDivElement>(null);
+  const statusFilterRef = useRef<HTMLDivElement>(null);
+  const publishFilterRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
@@ -180,16 +178,22 @@ export default function MainContent({
       if (categoryFilterRef.current && !categoryFilterRef.current.contains(event.target as Node)) {
         setIsCategoryFilterOpen(false);
       }
+      if (statusFilterRef.current && !statusFilterRef.current.contains(event.target as Node)) {
+        setIsStatusFilterOpen(false);
+      }
+      if (publishFilterRef.current && !publishFilterRef.current.contains(event.target as Node)) {
+        setIsPublishFilterOpen(false);
+      }
     };
 
-    if (isPerPageOpen || isCategoryFilterOpen) {
+    if (isPerPageOpen || isCategoryFilterOpen || isStatusFilterOpen || isPublishFilterOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isPerPageOpen, isCategoryFilterOpen]);
+  }, [isPerPageOpen, isCategoryFilterOpen, isStatusFilterOpen, isPublishFilterOpen]);
 
   return (
     <>
@@ -263,18 +267,93 @@ export default function MainContent({
             </div>
           )}
         </div>
-        <div className="filter-btn" style={{ padding: 0, border: "none", background: "transparent" }}>
-          <select
-            value={statusFilter}
-            onChange={(e) => handleStatusFilterChange(e.target.value as "all" | "active" | "inactive")}
-            style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid #E5E7EB", background: "white" }}
+        <div className="filter-dropdown" ref={statusFilterRef}>
+          <button
+            className="filter-btn"
+            onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
           >
-            {STATUS_FILTER_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            {statusFilter === "all"
+              ? "All Status"
+              : statusFilter === "active"
+              ? "Active"
+              : "Inactive"}{" "}
+            <ChevronDown size={16} />
+          </button>
+          {isStatusFilterOpen && (
+            <div className="filter-dropdown-menu">
+              <button
+                className={`filter-option ${statusFilter === "all" ? "active" : ""}`}
+                onClick={() => {
+                  handleStatusFilterChange("all");
+                  setIsStatusFilterOpen(false);
+                }}
+              >
+                All Status
+              </button>
+              <button
+                className={`filter-option ${statusFilter === "active" ? "active" : ""}`}
+                onClick={() => {
+                  handleStatusFilterChange("active");
+                  setIsStatusFilterOpen(false);
+                }}
+              >
+                Active
+              </button>
+              <button
+                className={`filter-option ${statusFilter === "inactive" ? "active" : ""}`}
+                onClick={() => {
+                  handleStatusFilterChange("inactive");
+                  setIsStatusFilterOpen(false);
+                }}
+              >
+                Inactive
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="filter-dropdown" ref={publishFilterRef}>
+          <button
+            className="filter-btn"
+            onClick={() => setIsPublishFilterOpen(!isPublishFilterOpen)}
+          >
+            {publishFilter === "all"
+              ? "All Publish"
+              : publishFilter === "publish"
+              ? "Publish"
+              : "Draft"}{" "}
+            <ChevronDown size={16} />
+          </button>
+          {isPublishFilterOpen && (
+            <div className="filter-dropdown-menu">
+              <button
+                className={`filter-option ${publishFilter === "all" ? "active" : ""}`}
+                onClick={() => {
+                  handlePublishFilterChange("all");
+                  setIsPublishFilterOpen(false);
+                }}
+              >
+                All Publish
+              </button>
+              <button
+                className={`filter-option ${publishFilter === "publish" ? "active" : ""}`}
+                onClick={() => {
+                  handlePublishFilterChange("publish");
+                  setIsPublishFilterOpen(false);
+                }}
+              >
+                Publish
+              </button>
+              <button
+                className={`filter-option ${publishFilter === "draft" ? "active" : ""}`}
+                onClick={() => {
+                  handlePublishFilterChange("draft");
+                  setIsPublishFilterOpen(false);
+                }}
+              >
+                Draft
+              </button>
+            </div>
+          )}
         </div>
         <div className="search-box">
           <Search className="search-icon" size={16} />
@@ -286,17 +365,7 @@ export default function MainContent({
           />
         </div>
 
-        <div className="filter-btn" style={{ padding: 0, border: "none", background: "transparent" }}>
-          <select
-            value={publishFilter}
-            onChange={(e) => handlePublishFilterChange(e.target.value as "all" | "publish" | "draft")}
-            style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid #E5E7EB", background: "white" }}
-          >
-            <option value="all">All Publish</option>
-            <option value="publish">Publish</option>
-            <option value="draft">Draft</option>
-          </select>
-        </div>
+        
       </div>
 
       {/* Table */}
