@@ -111,9 +111,17 @@ class ApiService {
     limit: number = 10,
     category?: string,
     search?: string,
-    activeStatus?: "active" | "inactive"
+    activeStatus?: "active" | "inactive",
+    publishStatus?: "publish" | "draft"
   ): Promise<PostsResponse> {
-    const params: { page: number; limit: number; category?: string; search?: string; activeStatus?: "active" | "inactive" } = {
+    const params: {
+      page: number;
+      limit: number;
+      category?: string;
+      search?: string;
+      activeStatus?: "active" | "inactive";
+      publishStatus?: "publish" | "draft";
+    } = {
       page,
       limit,
     };
@@ -128,6 +136,10 @@ class ApiService {
 
     if (activeStatus === "active" || activeStatus === "inactive") {
       params.activeStatus = activeStatus;
+    }
+
+    if (publishStatus === "publish" || publishStatus === "draft") {
+      params.publishStatus = publishStatus;
     }
     
     const response = await this.client.get<any>("/posts", {

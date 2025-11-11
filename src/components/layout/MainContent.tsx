@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Search, Plus, ChevronDown, ChevronLeft, ChevronRight, Edit2, Trash2 } from "lucide-react";
 import { usePosts } from "../../hooks/usePosts";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -57,6 +57,27 @@ const getSubtitle = (title: string) => {
   return words[0] || "";
 };
 
+const STATUS_FILTER_OPTIONS: Array<{ value: "all" | "active" | "inactive"; label: string }> = [
+  { value: "all", label: "All Status" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+];
+
+const STATUS_COLORS: Record<"active" | "inactive", string> = {
+  active: "#16a34a",
+  inactive: "#ef4444",
+};
+
+const PUBLISH_COLORS: Record<"publish" | "draft", string> = {
+  publish: "#16a34a",
+  draft: "#f59e0b",
+};
+
+const getCoverImageSrc = (coverImageUrl: string) => {
+  if (!coverImageUrl) return "/placeholder-image.png";
+  return coverImageUrl.startsWith("upload") ? `${API_BASE_URL}/${coverImageUrl}` : coverImageUrl;
+};
+
 export default function MainContent({
   onCreatePost,
   onEditPost,
@@ -77,13 +98,19 @@ export default function MainContent({
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const [publishFilter, setPublishFilter] = useState<"all" | "publish" | "draft">("all");
   const { data, isLoading, isError } = usePosts(
     currentPage,
     itemsPerPage,
     categoryFilter,
     searchTerm,
-    statusFilter === "all" ? undefined : statusFilter
+    statusFilter === "all" ? undefined : statusFilter,
+    publishFilter === "all" ? undefined : publishFilter
   );
+
+  const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
+  const totalPosts = data?.total ?? 0;
+  const totalPages = data?.totalPages ?? 0;
 
   // Delete mutation
   const deleteMutation = useMutation({
@@ -116,6 +143,33 @@ export default function MainContent({
   };
 
   const perPageOptions = [10, 20, 30, 50, 100];
+
+  const handleStatusFilterChange = (value: "all" | "active" | "inactive") => {
+    setStatusFilter(value);
+    onPageChange(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    onPageChange(1);
+  };
+
+  const handlePublishFilterChange = (value: "all" | "publish" | "draft") => {
+    setPublishFilter(value);
+    onPageChange(1);
+  };
+
+  const handleStatusUpdate = (postId: number, value: "active" | "inactive") => {
+    apiService.updateStatus(postId, value).then(() => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    });
+  };
+
+  const handlePublishUpdate = (postId: number, value: "publish" | "draft") => {
+    apiService.updatePublishStatus(postId, value).then(() => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    });
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -156,7 +210,7 @@ export default function MainContent({
       <div className="main-header">
         <div>
           <h1>News & Announcements</h1>
-          <p>{data?.total || 0} Posts</p>
+          <p>{totalPosts} Posts</p>
         </div>
         <button onClick={onCreatePost} className="add-btn">
           <Plus size={16} /> Add News or Announcement
@@ -212,16 +266,14 @@ export default function MainContent({
         <div className="filter-btn" style={{ padding: 0, border: "none", background: "transparent" }}>
           <select
             value={statusFilter}
-            onChange={(e) => {
-              const value = e.target.value as "all" | "active" | "inactive";
-              setStatusFilter(value);
-              onPageChange(1);
-            }}
+            onChange={(e) => handleStatusFilterChange(e.target.value as "all" | "active" | "inactive")}
             style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid #E5E7EB", background: "white" }}
           >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            {STATUS_FILTER_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </div>
         <div className="search-box">
@@ -230,26 +282,21 @@ export default function MainContent({
             type="text"
             placeholder="Search"
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              onPageChange(1);
-            }}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
 
-        {/* Temporary static selectbox (no functionality) */}
-        <button className="filter-btn" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span
-            style={{
-              display: "inline-block",
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              backgroundColor: "#16a34a",
-            }}
-          ></span>
-          Publish <ChevronDown size={16} />
-        </button>
+        <div className="filter-btn" style={{ padding: 0, border: "none", background: "transparent" }}>
+          <select
+            value={publishFilter}
+            onChange={(e) => handlePublishFilterChange(e.target.value as "all" | "publish" | "draft")}
+            style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid #E5E7EB", background: "white" }}
+          >
+            <option value="all">All Publish</option>
+            <option value="publish">Publish</option>
+            <option value="draft">Draft</option>
+          </select>
+        </div>
       </div>
 
       {/* Table */}
@@ -275,122 +322,112 @@ export default function MainContent({
               <tr>
                 <td colSpan={7}>Error loading posts. Please try again.</td>
               </tr>
-            ) : data?.posts && data.posts.length > 0 ? (
-              data.posts.map((post: Post) => (
-                <tr key={post.id}>
-                  <td>
-                    <div className="post-info">
-                      <div className="post-image">
-                        <img
-                          src={post.coverImageUrl.startsWith('upload')?`${API_BASE_URL }/${post.coverImageUrl}`: post.coverImageUrl || "/placeholder-image.png"}
-                          alt={post.title}
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/placeholder-image.png";
-                          }}
-                        />
-                      </div>
-                      <div className="post-content">
-                        <div className="post-title">{truncateText(post.title, 30)}</div>
-                        <div className="post-subtitle">{getSubtitle(post.title)}</div>
-                        <div className="post-desc">
-                          {truncateText(post.plainContent, 60)}
+            ) : posts.length > 0 ? (
+              posts.map((post: Post) => {
+                const effectiveStatus: "active" | "inactive" = post.status === "inactive" ? "inactive" : "active";
+                const effectivePublish: "publish" | "draft" =
+                  post.publishStatus === "draft" ? "draft" : "publish";
+                return (
+                  <tr key={post.id}>
+                    <td>
+                      <div className="post-info">
+                        <div className="post-image">
+                          <img
+                            src={getCoverImageSrc(post.coverImageUrl)}
+                            alt={post.title}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/placeholder-image.png";
+                            }}
+                          />
+                        </div>
+                        <div className="post-content">
+                          <div className="post-title">{truncateText(post.title, 30)}</div>
+                          <div className="post-subtitle">{getSubtitle(post.title)}</div>
+                          <div className="post-desc">{truncateText(post.plainContent, 60)}</div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td>
-                    <span
-                      className={`type-badge ${
-                        post.category === "NEWS" ? "news" : "announcement"
-                      }`}
-                    >
-                      {getCategoryDisplay(post.category)}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="date-time">
-                      <div className="date-text">{formatDate(post.createdAt)}</div>
-                      <div className="time-text">{formatTime(post.createdAt)}</div>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="status-select-wrapper" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    </td>
+                    <td>
                       <span
-                        className="status-dot"
-                        style={{
-                          display: "inline-block",
-                          width: 8,
-                          height: 8,
-                          borderRadius: "50%",
-                          backgroundColor: (post.status || "active") === "active" ? "#16a34a" : "#ef4444",
-                        }}
-                      ></span>
-                      <select
-                        value={post.status || "active"}
-                        onChange={(e) => {
-                          const value = (e.target.value as "active" | "inactive");
-                          apiService.updateStatus(post.id, value).then(() => {
-                            queryClient.invalidateQueries({ queryKey: ["posts"] });
-                          });
-                        }}
-                        className="status-select"
-                        style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #E5E7EB", background: "white" }}
+                        className={`type-badge ${
+                          post.category === "NEWS" ? "news" : "announcement"
+                        }`}
                       >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </select>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="publish-select-wrapper" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span
-                        className="publish-dot"
-                        style={{
-                          display: "inline-block",
-                          width: 8,
-                          height: 8,
-                          borderRadius: "50%",
-                          backgroundColor: (post.publishStatus || "publish") === "publish" ? "#16a34a" : "#f59e0b",
-                        }}
-                      ></span>
-                      <select
-                        value={post.publishStatus || "publish"}
-                        onChange={(e) => {
-                          const value = (e.target.value as "publish" | "draft");
-                          apiService.updatePublishStatus(post.id, value).then(() => {
-                            queryClient.invalidateQueries({ queryKey: ["posts"] });
-                          });
-                        }}
-                        className="publish-select"
-                        style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #E5E7EB", background: "white" }}
-                      >
-                        <option value="publish">Publish</option>
-                        <option value="draft">Draft</option>
-                      </select>
-                    </div>
-                  </td>
-                  <td className="author-cell">snovruzlu</td>
-                  <td>
-                    <div className="action-buttons">
-                      <button 
-                        className="icon-btn edit-btn"
-                        onClick={() => {
-                          onEditPost(post.id)
-                          console.log(post)
-                        }}
-                      >
-                        <Edit2 size={14} />
-                      </button>
-                      <button 
-                        className="icon-btn delete-btn"
-                        onClick={() => handleDeleteClick(post)}
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                        {getCategoryDisplay(post.category)}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="date-time">
+                        <div className="date-text">{formatDate(post.createdAt)}</div>
+                        <div className="time-text">{formatTime(post.createdAt)}</div>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="status-select-wrapper" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span
+                          className="status-dot"
+                          style={{
+                            display: "inline-block",
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            backgroundColor: STATUS_COLORS[effectiveStatus],
+                          }}
+                        ></span>
+                        <select
+                          value={effectiveStatus}
+                          onChange={(e) => handleStatusUpdate(post.id, e.target.value as "active" | "inactive")}
+                          className="status-select"
+                          style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #E5E7EB", background: "white" }}
+                        >
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                        </select>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="publish-select-wrapper" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span
+                          className="publish-dot"
+                          style={{
+                            display: "inline-block",
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            backgroundColor: PUBLISH_COLORS[effectivePublish],
+                          }}
+                        ></span>
+                        <select
+                          value={effectivePublish}
+                          onChange={(e) => handlePublishUpdate(post.id, e.target.value as "publish" | "draft")}
+                          className="publish-select"
+                          style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #E5E7EB", background: "white" }}
+                        >
+                          <option value="publish">Publish</option>
+                          <option value="draft">Draft</option>
+                        </select>
+                      </div>
+                    </td>
+                    <td className="author-cell">snovruzlu</td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          className="icon-btn edit-btn"
+                          onClick={() => onEditPost(post.id)}
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        <button
+                          className="icon-btn delete-btn"
+                          onClick={() => handleDeleteClick(post)}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+              );
+              })
             ) : (
               <tr>
                 <td colSpan={7}>No posts found</td>
@@ -401,7 +438,7 @@ export default function MainContent({
       </div>
 
       {/* Pagination */}
-      {data && data.totalPages > 0 && (
+      {totalPages > 0 && (
         <div className="pagination">
           <button
             className="pagination-nav-btn"
@@ -411,7 +448,7 @@ export default function MainContent({
             <ChevronLeft size={18} />
           </button>
           <div className="page-numbers">
-            {Array.from({ length: Math.min(data.totalPages, 7) }, (_, i) => {
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
               const page = i + 1;
               return (
                 <button
@@ -426,8 +463,8 @@ export default function MainContent({
           </div>
           <button
             className="pagination-nav-btn"
-            onClick={() => onPageChange(Math.min(data.totalPages, currentPage + 1))}
-            disabled={currentPage === data.totalPages}
+            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage === totalPages}
           >
             <ChevronRight size={18} />
           </button>
