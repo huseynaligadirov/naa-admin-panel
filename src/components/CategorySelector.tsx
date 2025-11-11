@@ -1,11 +1,12 @@
-import type      { ControllerRenderProps } from "react-hook-form";
+import type { ControllerRenderProps } from "react-hook-form";
 import styles from "./CreatePostModal.module.css";
 
 type Props = {
   field: ControllerRenderProps<any, "category">;
+  error?: string;
 };
 
-export default function CategorySelector({ field }: Props) {
+export default function CategorySelector({ field, error }: Props) {
   return (
     <div className={styles.formGroup}>
       <label className={styles.formLabel}>Category</label>
@@ -23,11 +24,11 @@ export default function CategorySelector({ field }: Props) {
           className={`${styles.categoryBtn} ${field.value === "announcement" ? styles.categoryBtnActive : ""}`}
           onClick={() => field.onChange("announcement")}
         >
-
-          <img src="/announce.svg" alt="News" />
+          <img src="/announce.svg" alt="Announcement" />
           Announcement
         </button>
       </div>
+      {error && <p className={styles.errorMessage}>{error}</p>}
     </div>
   );
 }
