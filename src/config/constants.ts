@@ -1,6 +1,6 @@
 // Application constants
 
-export const API_BASE_URL = "http://51.20.12.26:3000";
+export const API_BASE_URL = "https://api.svdev.me";
 
 export const API_ENDPOINTS = {
   POSTS: "/posts",
